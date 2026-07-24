@@ -1,0 +1,10 @@
+groups:
+  - name: arcade_alerts
+    rules:
+      - alert: ServiceDown
+        expr: up{job="arcade-api"} == 0
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "L'API Arcade est indisponible"
