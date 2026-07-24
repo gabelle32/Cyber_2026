@@ -27,7 +27,6 @@ jobs:
           pip install -r requirements-dev.txt
           pip install pytest-cov pip-audit bandit
 
-      # Utilisation des configurations du pyproject.toml
       - name: Run Linter (Ruff)
         run: ruff check . --exit-zero
 
@@ -39,3 +38,15 @@ jobs:
 
       - name: Audit Dependencies (pip-audit)
         run: pip-audit || true
+
+      # --- SCAN TRIVY DE L'IMAGE DOCKER ---
+      - name: Build Docker Image for Scan
+        run: docker build -t arcade-api:test .
+
+      - name: Scan Docker Image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'arcade-api:test'
+          format: 'table'
+          exit-code: '0' # Utiliser '1' si tu veux bloquer la CI sur CVE critique
+          severity: 'CRITICAL,HIGH'
