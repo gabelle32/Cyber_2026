@@ -1,8 +1,9 @@
 services:
   api:
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
+    environment:
+      - DB_PATH=/app/data/scores.db
+      - LOG_LEVEL=debug
     volumes:
       - ./app:/app/app
       - sqlite_data:/app/data
-    environment:
-      - DB_PATH=/app/data/scores.db
