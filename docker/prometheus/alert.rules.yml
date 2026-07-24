@@ -1,6 +1,7 @@
 groups:
   - name: arcade_alerts
     rules:
+      # 1. Service indisponible
       - alert: ServiceDown
         expr: up{job="arcade-api"} == 0
         for: 10s
@@ -8,3 +9,21 @@ groups:
           severity: critical
         annotations:
           summary: "L'API Arcade est indisponible"
+
+      # 2. Latence élevée
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1m])) by (le)) > 0.5
+        for: 10s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Latence p95 supérieure à 500ms"
+
+      # 3. Taux d'erreur ou Pic de triche
+      - alert: HighCheatRate
+        expr: sum(rate(rejected_scores_total[1m])) > 1
+        for: 10s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Pic de tentatives de triche détecté"
