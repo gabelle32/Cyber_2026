@@ -1,0 +1,39 @@
+name: CI Pipeline - Cyber Arcade Leaderboard
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  pipeline:
+    name: Build, Lint, Test & Security Scans
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run Linter (Ruff)
+        run: ruff check .
+
+      - name: Run Tests with Coverage (Pytest)
+        run: pytest --cov=app --cov-report=xml
+
+      - name: Run SAST Analysis (Bandit)
+        run: bandit -r app/
+
+      - name: Audit Dependencies (pip-audit)
+        run: pip-audit
